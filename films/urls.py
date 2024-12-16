@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+#from django.contrib.auth.views import LoginView
 
 app_name = "films"
 urlpatterns = [
@@ -37,6 +38,7 @@ urlpatterns = [
          views.person_update, name='person_update'),
     path('people/<int:id>/delete/',
          views.person_delete, name='person_delete'),
-    path('people/autocomplete/',
-         views.PersonAutocomplete.as_view(), name='person_autocomplete'),
+    path('people/autocomplete/', views.PersonAutocomplete.as_view(), name='person_autocomplete'),
+
+    #path('login/', LoginView.as_view(), name='login'),
 ]

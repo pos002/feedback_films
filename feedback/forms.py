@@ -2,10 +2,8 @@ from django import forms
 # from dal import autocomplete
 from .models import Feedback
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.hashers import make_password
-from feedback.models import Feedback
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 
 class FeedbackForm(forms.ModelForm):
     """
@@ -20,18 +18,16 @@ class FeedbackForm(forms.ModelForm):
             'content': forms.Textarea(attrs={'class': 'form-control', 'autocomplete': 'off'}),
         }
 
-class PasswordResetForm(PasswordResetForm):
-    """
-    Форма для восстановления пароля
-    """
+
+class FeedbackPasswordResetForm(PasswordResetForm):
     reset_code = forms.UUIDField(label=_('Reset Code'))
     new_password1 = forms.CharField(
-        label=('Новый пароль'),
+        label=_('New password'),
         widget=forms.PasswordInput,
         validators=[validate_password],
     )
     new_password2 = forms.CharField(
-        label=('Повторите пароль'),
+        label=_('New password confirmation'),
         widget=forms.PasswordInput,
     )
 
@@ -62,3 +58,21 @@ class PasswordResetForm(PasswordResetForm):
             feedback.user.save()
             feedback.save()
         return feedback
+    
+    from django import forms
+from django.utils.translation import gettext_lazy as _
+from django.contrib.auth.forms import (
+    PasswordResetForm,
+    SetPasswordForm
+)
+
+class FeedbackSetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label=_("New password"),
+        widget=forms.PasswordInput,
+        validators=[validate_password],
+    )
+    new_password2 = forms.CharField(
+        label=_("New password confirmation"),
+        widget=forms.PasswordInput,
+    )

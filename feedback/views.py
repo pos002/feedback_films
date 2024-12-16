@@ -1,11 +1,12 @@
-from django.shortcuts import render, redirect
+#from django.shortcuts import render
 from .models import Feedback
-from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
-from .forms import PasswordResetForm, FeedbackForm
+from django.contrib.auth.views import PasswordResetDoneView
+from django.contrib.auth.views import PasswordResetCompleteView
+from .services.email import send_contact_email_message
+from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
+from .forms import FeedbackPasswordResetForm, FeedbackSetPasswordForm, FeedbackForm
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic.edit import CreateView
-
-from .services.email import send_contact_email_message
 from .services.utils import get_client_ip
 from django.urls import reverse_lazy
 
@@ -25,20 +26,24 @@ class FeedbackView(SuccessMessageMixin, CreateView):
         feedback.save()
         send_contact_email_message(feedback.subject, feedback.email, feedback.content, feedback.ip_address, feedback.user_id)
         return super().form_valid(form)
-    def get(self, request):
-        return render(request, 'feedback_templates/feedback.html')
+    # def get(self, request):
+    #     return render(request, 'feedback_templates/feedback.html')
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    #form_class = FeedbackPasswordResetForm
+    template_name = 'feedback_templates/registration/password_reset_done.html'  # Укажите свой шаблон
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'feedback_templates/registration/password_reset_complete.html'  # Укажите свой шаблон
+    success_url = reverse_lazy('login')
+
 
 class CustomPasswordResetView(PasswordResetView):
-    form_class = PasswordResetForm
+    #form_class = FeedbackPasswordResetForm
     success_url = reverse_lazy('feedback:password_reset_done')
     template_name = 'feedback_templates/registration/password_reset.html'
 
-class CustomPasswordResetDoneView(PasswordResetDoneView):
-    template_name = 'feedback_templates/registration/password_reset_done.html'
-
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    form_class = FeedbackSetPasswordForm
     success_url = reverse_lazy('feedback:password_reset_complete')
     template_name = 'feedback_templates/registration/password_reset_confirm.html'
-
-class CustomPasswordResetCompleteView(PasswordResetCompleteView):
-    template_name = 'feedback_templates/registration/password_reset_complete.html'
